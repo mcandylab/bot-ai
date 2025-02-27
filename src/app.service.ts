@@ -7,6 +7,7 @@ export class AppService {
   private genAI: GoogleGenerativeAI;
   private model: GenerativeModel;
   private readonly config: Record<string, any>;
+  private chatSession: any;
 
   constructor() {
     this.apiKey = 'AIzaSyBb42il22oYvra35mKfQbMRpNSbKxY1BEA';
@@ -23,10 +24,8 @@ export class AppService {
       maxOutputTokens: 8192,
       responseMimeType: 'text/plain',
     };
-  }
 
-  async getHello(text: string): Promise<string> {
-    const chatSession = this.model.startChat({
+    this.chatSession = this.model.startChat({
       ...this.config,
       history: [
         {
@@ -39,8 +38,10 @@ export class AppService {
         },
       ],
     });
+  }
 
-    const result = await chatSession.sendMessage(text);
+  async getHello(text: string): Promise<string> {
+    const result = await this.chatSession.sendMessage(text);
     return result.response.text();
   }
 }
