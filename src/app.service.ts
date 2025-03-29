@@ -25,7 +25,11 @@ export class AppService {
       responseMimeType: 'text/plain',
     };
 
-    this.chatSession = this.model.startChat({
+    this.chatSession = this.createChatSession();
+  }
+
+  private createChatSession() {
+    return this.model.startChat({
       ...this.config,
       history: [
         {
@@ -41,7 +45,14 @@ export class AppService {
   }
 
   async getHello(text: string): Promise<string> {
-    const result = await this.chatSession.sendMessage(text);
-    return result.response.text();
+    try {
+      const result = await this.chatSession.sendMessage(text);
+      return result.response.text();
+    } catch (error) {
+      console.error('Ошибка при отправке сообщения, создаю новую сессию чата 😅', error);
+      this.chatSession = this.createChatSession();
+      const result = await this.chatSession.sendMessage(text);
+      return result.response.text();
+    }
   }
 }
